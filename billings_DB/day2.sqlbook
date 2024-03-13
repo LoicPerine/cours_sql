@@ -73,3 +73,24 @@ JOIN bill ON line_item.bill_id = bill.id
 WHERE YEAR(bill.date) = 2022
 GROUP BY product.id, category.label
 HAVING SUM(line_item.quantity) >= 10;
+-- SQLBook: Markup
+ajout is_vip
+-- SQLBook: Code
+ALTER TABLE customer ADD COLUMN is_vip BOOLEAN DEFAULT FALSE;
+-- SQLBook: Markup
+procedure
+-- SQLBook: Code
+DROP PROCEDURE IF EXISTS set_vips;
+DELIMITER //
+CREATE PROCEDURE set_vips(threshold INT) 
+BEGIN
+    SET threshold = IFNULL(threshold,10000);
+	UPDATE customer
+	JOIN (
+	    SELECT SUM(total) as total, customer_id
+	    FROM bill_view
+	    GROUP BY
+	        customer_id
+	) client_bills ON client_bills.customer_id = customer.id
+	SET customer.is_vip = client_bills >= threshold;
+END//
