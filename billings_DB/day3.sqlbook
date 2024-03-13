@@ -1,0 +1,44 @@
+-- SQLBook: Markup
+billings view
+-- SQLBook: Code
+DROP VIEW IF EXISTS bill_view;
+CREATE VIEW bill_view AS
+SELECT bill.*, SUM(
+        line_item.quantity * product.unit_price
+    ) AS total
+FROM bill
+    JOIN line_item ON line_item.bill_id = bill.id
+    JOIN product ON product.id = line_item.product_id
+GROUP BY
+    bill.id;
+-- SQLBook: Markup
+factures clients qui ont passé le plus de factures
+-- SQLBook: Code
+SELECT customer.firstname, customer.lastname, COUNT(bill_view.total) AS totalNbBills, SUM(bill_view.total) AS totalAmount
+FROM customer
+    JOIN bill_view ON bill_view.customer_id = customer.id
+GROUP BY
+    customer.id
+ORDER BY
+    totalNbBills DESC
+LIMIT 3;
+-- SQLBook: Markup
+infos clients+ total factures des 3 plus grosses factures
+-- SQLBook: Code
+SELECT customer.firstname, customer.lastname, SUM(bill_view.total) AS total, MAX(bill_view.total) AS max
+FROM customer
+JOIN bill_view ON bill_view.customer_id = customer.id
+GROUP BY customer.id
+ORDER BY max DESC
+LIMIT 3;
+-- SQLBook: Markup
+top 3 reserveurs
+-- SQLBook: Code
+SELECT customer.firstname, customer.lastname, SUM(bill_view.total) AS total
+FROM customer
+    JOIN bill_view ON bill_view.customer_id = customer.id
+GROUP BY
+    customer.id
+ORDER BY
+    total DESC
+LIMIT 3;

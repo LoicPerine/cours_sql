@@ -1,0 +1,33 @@
+-- SQLBook: Markup
+table customer
+-- SQLBook: Code
+DROP TABLE IF EXISTS customer;
+CREATE TABLE customer (
+id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(100) NOT NULL,
+    lastname VARCHAR(100) NOT NULL,
+    email VARCHAR(100) NOT NULL,
+    phone VARCHAR(20) NOT NULL
+);
+-- SQLBook: Markup
+table room
+-- SQLBook: Code
+DROP TABLE IF EXISTS room;
+CREATE TABLE room(
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    room_number VARCHAR(10) NOT NULL,
+    type VARCHAR(100) NOT NULL
+)
+-- SQLBook: Markup
+table reservation
+-- SQLBook: Code
+CREATE TABLE reservation(
+    id SERIAL PRIMARY KEY AUTO_INCREMENT,
+    customer_id INT NOT NULL,
+    room_id INT NOT NULL,
+    start_date DATE NOT NULL,
+    end_date DATE NOT NULL,
+    FOREIGN KEY (customer_id) REFERENCES customer(id) ON UPDATE CASCADE ON DELETE RESTRICT,
+    FOREIGN KEY (room_id) REFERENCES room(id) ON UPDATE CASCADE ON DELETE RESTRICT,
+    INDEX (room_id, start_date, end_date)
+)

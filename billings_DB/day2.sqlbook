@@ -1,0 +1,75 @@
+-- SQLBook: Markup
+liste des factures qui ont plus de 2 produits différents commandés
+-- SQLBook: Code
+SELECT bill.ref
+FROM line_item
+    JOIN bill ON line_item.bill_id = bill.id
+GROUP BY
+    bill_id
+HAVING
+    COUNT(DISTINCT product_id) > 2; /* checks if there is atleast 2 entries in the line_item table for each bill */
+-- SQLBook: Markup
+montant total de chaque facture
+-- SQLBook: Code
+SELECT ref, SUM(line_item.quantity * product.unit_price) AS total
+FROM line_item
+    JOIN product ON line_item.product_id = product.id
+    JOIN bill ON line_item.bill_id = bill.id
+GROUP BY
+    bill_id
+-- SQLBook: Markup
+compte de produit différents commandé par client
+-- SQLBook: Code
+SELECT bill.customer_id, COUNT(DISTINCT line_item.product_id) AS total_products
+FROM bill
+JOIN line_item ON bill.id = line_item.bill_id
+GROUP BY bill.customer_id;
+-- SQLBook: Markup
+somme des factures par catégorie
+-- SQLBook: Code
+SELECT category.label, SUM(line_item.quantity * product.unit_price) AS total
+FROM category
+JOIN product ON category.id = product.category_id
+JOIN line_item ON product.id = line_item.product_id
+GROUP BY category.label;
+
+-- SQLBook: Markup
+moyenne age par année
+-- SQLBook: Code
+SELECT YEAR(date), ROUND(AVG(DATEDIFF(date,customer.date_of_birth)/365)) AS age
+FROM bill
+JOIN
+    customer ON bill.customer_id = customer.id
+GROUP BY YEAR(bill.`date`)
+-- SQLBook: Markup
+noms, prénoms, num des clients qui ont commandés des prod de camping il y a moins de 2 ans
+-- SQLBook: Code
+SELECT firstname,lastname,phone_number
+FROM customer
+JOIN bill ON bill.customer_id = customer.id
+JOIN line_item ON line_item.bill_id = bill.id
+JOIN product ON product.id = line_item.product_id
+JOIN category ON category.id = product.category_id
+WHERE category.label = 'Camping'
+GROUP BY customer.id
+-- SQLBook: Markup
+moyenne age par catégorie de produit
+-- SQLBook: Code
+SELECT label, ROUND(AVG(DATEDIFF(bill.date,customer.date_of_birth)/365)) AS avg_age
+FROM category
+JOIN product ON category.id = product.category_id
+JOIN line_item ON product.id = line_item.product_id
+JOIN bill ON line_item.bill_id = bill.id
+JOIN customer ON bill.customer_id = customer.id
+GROUP BY label
+-- SQLBook: Markup
+liste des produits commandés plus de 10* en 2022
+-- SQLBook: Code
+SELECT product.name, category.label
+FROM product
+JOIN category ON product.category_id = category.id
+JOIN line_item ON product.id = line_item.product_id
+JOIN bill ON line_item.bill_id = bill.id
+WHERE YEAR(bill.date) = 2022
+GROUP BY product.id, category.label
+HAVING SUM(line_item.quantity) >= 10;
